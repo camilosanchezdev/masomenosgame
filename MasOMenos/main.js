@@ -257,7 +257,7 @@ class HomeComponent {
         // carta 1
         let tarjeta1 = this.randomCartas();
         var carta1 = document.getElementById('first');
-        carta1.style.background = "linear-gradient( rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5) ), url('../../../assets/cartas/" + this.tarjetas[tarjeta1].imagen + "')";
+        carta1.style.background = "linear-gradient( rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5) ), url('./assets/cartas/" + this.tarjetas[tarjeta1].imagen + "')";
         var card1titulo = document.getElementById('titulo');
         card1titulo.innerHTML = this.tarjetas[tarjeta1].titulo;
         var card1subtitulo = document.getElementById('subtitulo');
@@ -265,7 +265,7 @@ class HomeComponent {
         // carta 2
         let tarjeta2 = this.randomCartas();
         var carta2 = document.getElementById('second');
-        carta2.style.background = "linear-gradient( rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5) ), url('../../../assets/cartas/" + this.tarjetas[tarjeta2].imagen + "')";
+        carta2.style.background = "linear-gradient( rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5) ), url('./assets/cartas/" + this.tarjetas[tarjeta2].imagen + "')";
         var card2titulo = document.getElementById('titulo2');
         card2titulo.innerHTML = this.tarjetas[tarjeta2].titulo;
         //var card12ubtitulo = document.getElementById('subtitulo2');
@@ -275,7 +275,7 @@ class HomeComponent {
         // carta 2 pasa a First
         let tarjeta2x = _globals_globals_component__WEBPACK_IMPORTED_MODULE_1__["arrNumbersX"][_globals_globals_component__WEBPACK_IMPORTED_MODULE_1__["arrNumbersX"].length - 1];
         var carta1 = document.getElementById('first');
-        carta1.style.background = "linear-gradient( rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5) ), url('../../../assets/cartas/" + this.tarjetas[tarjeta2x].imagen + "')";
+        carta1.style.background = "linear-gradient( rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5) ), url('./assets/cartas/" + this.tarjetas[tarjeta2x].imagen + "')";
         var card1titulo = document.getElementById('titulo');
         card1titulo.innerHTML = this.tarjetas[tarjeta2x].titulo;
         var card1subtitulo = document.getElementById('subtitulo');
@@ -283,7 +283,7 @@ class HomeComponent {
         // nueva carta 2
         let tarjeta2 = this.randomCartas();
         var carta2 = document.getElementById('second');
-        carta2.style.background = "linear-gradient( rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5) ), url('../../../assets/cartas/" + this.tarjetas[tarjeta2].imagen + "')";
+        carta2.style.background = "linear-gradient( rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5) ), url('./assets/cartas/" + this.tarjetas[tarjeta2].imagen + "')";
         var card2titulo = document.getElementById('titulo2');
         card2titulo.innerHTML = this.tarjetas[tarjeta2].titulo;
         //var card12ubtitulo = document.getElementById('subtitulo2');
