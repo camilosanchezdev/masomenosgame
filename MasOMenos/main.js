@@ -268,8 +268,6 @@ class HomeComponent {
         carta2.style.background = "linear-gradient( rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5) ), url('./assets/cartas/" + this.tarjetas[tarjeta2].imagen + "')";
         var card2titulo = document.getElementById('titulo2');
         card2titulo.innerHTML = this.tarjetas[tarjeta2].titulo;
-        //var card12ubtitulo = document.getElementById('subtitulo2');
-        //card12ubtitulo.innerHTML = this.tarjetas[tarjeta2].subtitulo;
     }
     carta2() {
         // carta 2 pasa a First
@@ -286,13 +284,10 @@ class HomeComponent {
         carta2.style.background = "linear-gradient( rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5) ), url('./assets/cartas/" + this.tarjetas[tarjeta2].imagen + "')";
         var card2titulo = document.getElementById('titulo2');
         card2titulo.innerHTML = this.tarjetas[tarjeta2].titulo;
-        //var card12ubtitulo = document.getElementById('subtitulo2');
-        //card12ubtitulo.innerHTML = this.tarjetas[tarjeta2].subtitulo;
     }
     randomCartas() {
         let randomNumber;
         let result = false;
-        //myGlobals.arrNumbersX[0] = randomNumber;
         do {
             randomNumber = Math.floor(Math.random() * 10);
             for (let item of _globals_globals_component__WEBPACK_IMPORTED_MODULE_1__["arrNumbersX"]) {
@@ -381,9 +376,9 @@ class HomeComponent {
                 mas.style.pointerEvents = 'none';
                 let menos = document.getElementById('menos');
                 menos.style.pointerEvents = 'none';
+                this.carta2();
                 // Cambio valor notificacion
                 this.respuesta = 'incorrecto';
-                //this.carta2();
                 //muestro mensaje
                 var elem = document.getElementById('message');
                 elem.style.display = 'block';
@@ -479,7 +474,7 @@ class HomeComponent {
                 mas.style.pointerEvents = 'none';
                 let menos = document.getElementById('menos');
                 menos.style.pointerEvents = 'none';
-                console.log('INCORRECTO');
+                this.carta2();
                 this.respuesta = 'incorrecto';
                 var elem1 = document.getElementById('message');
                 elem1.style.display = 'block';
