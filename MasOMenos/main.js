@@ -162,14 +162,15 @@ var contador;
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "HomeComponent", function() { return HomeComponent; });
 /* harmony import */ var _angular_core__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @angular/core */ "./node_modules/@angular/core/__ivy_ngcc__/fesm2015/core.js");
-/* harmony import */ var _globals_globals_component__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../globals/globals.component */ "./src/app/components/globals/globals.component.ts");
-
 
 
 class HomeComponent {
     constructor() {
         // variables globales
         this.score = 0;
+        this.arrTarjetas = [];
+        this.tarjeta1 = 0;
+        this.tarjeta2 = 1;
         this.tarjetas = {
             "0": {
                 "id": "0",
@@ -248,6 +249,7 @@ class HomeComponent {
         localStorage.setItem('arrNumbers', JSON.stringify(arrNumbers));
     }
     ngOnInit() {
+        this.randomCards();
         this.cartasVisibles();
     }
     restart() {
@@ -255,7 +257,7 @@ class HomeComponent {
     }
     cartasVisibles() {
         // carta 1
-        let tarjeta1 = this.randomCartas();
+        let tarjeta1 = this.arrTarjetas[this.tarjeta1];
         var carta1 = document.getElementById('first');
         carta1.style.background = "linear-gradient( rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5) ), url('./assets/cartas/" + this.tarjetas[tarjeta1].imagen + "')";
         var card1titulo = document.getElementById('titulo');
@@ -263,7 +265,7 @@ class HomeComponent {
         var card1subtitulo = document.getElementById('subtitulo');
         card1subtitulo.innerHTML = this.tarjetas[tarjeta1].subtitulo;
         // carta 2
-        let tarjeta2 = this.randomCartas();
+        let tarjeta2 = this.arrTarjetas[this.tarjeta2];
         var carta2 = document.getElementById('second');
         carta2.style.background = "linear-gradient( rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5) ), url('./assets/cartas/" + this.tarjetas[tarjeta2].imagen + "')";
         var card2titulo = document.getElementById('titulo2');
@@ -271,7 +273,7 @@ class HomeComponent {
     }
     carta2() {
         // carta 2 pasa a First
-        let tarjeta2x = _globals_globals_component__WEBPACK_IMPORTED_MODULE_1__["arrNumbersX"][_globals_globals_component__WEBPACK_IMPORTED_MODULE_1__["arrNumbersX"].length - 1];
+        let tarjeta2x = this.arrTarjetas[this.tarjeta1];
         var carta1 = document.getElementById('first');
         carta1.style.background = "linear-gradient( rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5) ), url('./assets/cartas/" + this.tarjetas[tarjeta2x].imagen + "')";
         var card1titulo = document.getElementById('titulo');
@@ -279,34 +281,42 @@ class HomeComponent {
         var card1subtitulo = document.getElementById('subtitulo');
         card1subtitulo.innerHTML = this.tarjetas[tarjeta2x].subtitulo;
         // nueva carta 2
-        let tarjeta2 = this.randomCartas();
+        console.log(this.tarjeta2);
+        let tarjeta2 = this.arrTarjetas[this.tarjeta2];
         var carta2 = document.getElementById('second');
         carta2.style.background = "linear-gradient( rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5) ), url('./assets/cartas/" + this.tarjetas[tarjeta2].imagen + "')";
         var card2titulo = document.getElementById('titulo2');
         card2titulo.innerHTML = this.tarjetas[tarjeta2].titulo;
     }
-    randomCartas() {
-        let randomNumber;
+    randomCards() {
+        let random;
         let result = false;
-        do {
-            randomNumber = Math.floor(Math.random() * 10);
-            for (let item of _globals_globals_component__WEBPACK_IMPORTED_MODULE_1__["arrNumbersX"]) {
-                if (item === randomNumber) {
-                    result = true;
-                    break;
+        for (let i = 0; i < 10; i++) {
+            do {
+                random = Math.floor(Math.random() * 10);
+                for (let i = 0; i < this.arrTarjetas.length; i++) {
+                    if (random === this.arrTarjetas[i]) {
+                        result = true;
+                        break;
+                    }
+                    else {
+                        result = false;
+                    }
                 }
-                else {
-                    result = false;
-                }
-            }
-        } while (result);
-        _globals_globals_component__WEBPACK_IMPORTED_MODULE_1__["arrNumbersX"].push(randomNumber);
-        return randomNumber;
+            } while (result);
+            this.arrTarjetas.push(random);
+        }
+        console.log(this.arrTarjetas);
     }
     juego(opcion) {
+        ++this.tarjeta1;
+        ++this.tarjeta2;
+        // OPCION === 'MAS'
         if (opcion === 'mas') {
-            if (this.tarjetas[_globals_globals_component__WEBPACK_IMPORTED_MODULE_1__["arrNumbersX"][_globals_globals_component__WEBPACK_IMPORTED_MODULE_1__["arrNumbersX"].length - 2]].valor < this.tarjetas[_globals_globals_component__WEBPACK_IMPORTED_MODULE_1__["arrNumbersX"][_globals_globals_component__WEBPACK_IMPORTED_MODULE_1__["arrNumbersX"].length - 1]].valor) {
-                if (_globals_globals_component__WEBPACK_IMPORTED_MODULE_1__["arrNumbersX"].length != 10) {
+            // no es la última jugada
+            if (this.tarjeta2 < 9) {
+                // si es correcto
+                if (this.tarjetas[this.arrTarjetas[this.tarjeta1 - 1]].valor < this.tarjetas[this.arrTarjetas[this.tarjeta2 - 1]].valor) {
                     // desabilito botones
                     let mas = document.getElementById('mas');
                     mas.style.pointerEvents = 'none';
@@ -335,9 +345,42 @@ class HomeComponent {
                             elem.style.display = 'none';
                             clearInterval(idInterval);
                         }
-                    }
+                    } // fin timer
                 }
                 else {
+                    //Si es INCORRECTA la comparación
+                    // desabilito botones
+                    let mas = document.getElementById('mas');
+                    mas.style.pointerEvents = 'none';
+                    let menos = document.getElementById('menos');
+                    menos.style.pointerEvents = 'none';
+                    this.carta2();
+                    // Cambio valor notificacion
+                    this.respuesta = 'incorrecto';
+                    //muestro mensaje
+                    var elem = document.getElementById('message');
+                    elem.style.display = 'block';
+                    // timer - oculto mensaje
+                    var sec = 1;
+                    let idInterval = setInterval(fname, 1000);
+                    function fname() {
+                        sec--;
+                        if (sec == 0) {
+                            // habilito botones
+                            let mas = document.getElementById('mas');
+                            mas.style.pointerEvents = 'auto';
+                            let menos = document.getElementById('menos');
+                            menos.style.pointerEvents = 'auto';
+                            sec = 1;
+                            elem.style.display = 'none';
+                            clearInterval(idInterval);
+                        }
+                    } // fin timer
+                } // fin 'comparación incorrecta'
+            } // fin 'no es la última jugada'
+            // es la última jugada
+            else {
+                if (this.tarjetas[this.arrTarjetas[this.tarjeta1 - 1]].valor < this.tarjetas[this.arrTarjetas[this.tarjeta2 - 1]].valor) {
                     // desabilito botones
                     let mas = document.getElementById('mas');
                     mas.style.pointerEvents = 'none';
@@ -367,43 +410,51 @@ class HomeComponent {
                     elem0.style.display = 'block';
                     // Muestro última respuesta
                     var card12ubtitulo = document.getElementById('subtitulo2');
-                    card12ubtitulo.innerHTML = this.tarjetas[_globals_globals_component__WEBPACK_IMPORTED_MODULE_1__["arrNumbersX"].length - 1].subtitulo;
+                    card12ubtitulo.innerHTML = this.tarjetas[this.arrTarjetas[this.tarjeta2 - 1]].subtitulo;
                 }
-            }
-            else {
-                // desabilito botones
-                let mas = document.getElementById('mas');
-                mas.style.pointerEvents = 'none';
-                let menos = document.getElementById('menos');
-                menos.style.pointerEvents = 'none';
-                this.carta2();
-                // Cambio valor notificacion
-                this.respuesta = 'incorrecto';
-                //muestro mensaje
-                var elem = document.getElementById('message');
-                elem.style.display = 'block';
-                // timer - oculto mensaje
-                var sec = 1;
-                let idInterval = setInterval(fname, 1000);
-                function fname() {
-                    sec--;
-                    if (sec == 0) {
-                        // habilito botones
-                        let mas = document.getElementById('mas');
-                        mas.style.pointerEvents = 'auto';
-                        let menos = document.getElementById('menos');
-                        menos.style.pointerEvents = 'auto';
-                        sec = 1;
-                        elem.style.display = 'none';
-                        clearInterval(idInterval);
-                    }
-                }
+                else {
+                    //Si es INCORRECTA la comparación
+                    // desabilito botones
+                    let mas = document.getElementById('mas');
+                    mas.style.pointerEvents = 'none';
+                    let menos = document.getElementById('menos');
+                    menos.style.pointerEvents = 'none';
+                    // Cambio valor notificacion
+                    this.respuesta = 'incorrecto';
+                    //muestro mensaje
+                    var elem = document.getElementById('message');
+                    elem.style.display = 'block';
+                    // timer - oculto mensaje
+                    var sec = 1;
+                    let idInterval = setInterval(fname, 1000);
+                    function fname() {
+                        sec--;
+                        if (sec == 0) {
+                            // habilito botones
+                            let mas = document.getElementById('mas');
+                            mas.style.pointerEvents = 'auto';
+                            let menos = document.getElementById('menos');
+                            menos.style.pointerEvents = 'auto';
+                            sec = 1;
+                            elem.style.display = 'none';
+                            clearInterval(idInterval);
+                        }
+                    } // fin timer
+                    // Muestro mensaje final
+                    this.fin = 'fin del juego';
+                    var elem0 = document.getElementById('fin');
+                    elem0.style.display = 'block';
+                    // Muestro última respuesta
+                    var card12ubtitulo = document.getElementById('subtitulo2');
+                    card12ubtitulo.innerHTML = this.tarjetas[this.arrTarjetas[this.tarjeta2 - 1]].subtitulo;
+                } // fin 'comparación incorrecta'
             }
         }
-        // opcion === menos
+        // OPCION === 'MENOS'
         else {
-            if (this.tarjetas[_globals_globals_component__WEBPACK_IMPORTED_MODULE_1__["arrNumbersX"][_globals_globals_component__WEBPACK_IMPORTED_MODULE_1__["arrNumbersX"].length - 2]].valor > this.tarjetas[_globals_globals_component__WEBPACK_IMPORTED_MODULE_1__["arrNumbersX"][_globals_globals_component__WEBPACK_IMPORTED_MODULE_1__["arrNumbersX"].length - 1]].valor) {
-                if (_globals_globals_component__WEBPACK_IMPORTED_MODULE_1__["arrNumbersX"].length != 10) {
+            // no es la última jugada
+            if (this.tarjeta2 < 9) {
+                if (this.tarjetas[this.arrTarjetas[this.tarjeta1 - 1]].valor > this.tarjetas[this.arrTarjetas[this.tarjeta2 - 1]].valor) {
                     // desabilito botones
                     let mas = document.getElementById('mas');
                     mas.style.pointerEvents = 'none';
@@ -434,7 +485,38 @@ class HomeComponent {
                         }
                     }
                 }
+                // incorrecto
                 else {
+                    // desabilito botones
+                    let mas = document.getElementById('mas');
+                    mas.style.pointerEvents = 'none';
+                    let menos = document.getElementById('menos');
+                    menos.style.pointerEvents = 'none';
+                    this.carta2();
+                    this.respuesta = 'incorrecto';
+                    var elem1 = document.getElementById('message');
+                    elem1.style.display = 'block';
+                    // timer - oculto mensaje
+                    var sec1 = 1;
+                    let idInterval = setInterval(fname, 1000);
+                    function fname() {
+                        sec1--;
+                        if (sec1 == 0) {
+                            // habilito botones
+                            let mas = document.getElementById('mas');
+                            mas.style.pointerEvents = 'auto';
+                            let menos = document.getElementById('menos');
+                            menos.style.pointerEvents = 'auto';
+                            sec1 = 1;
+                            elem1.style.display = 'none';
+                            clearInterval(idInterval);
+                        }
+                    }
+                }
+            }
+            // es la última jugada
+            else {
+                if (this.tarjetas[this.arrTarjetas[this.tarjeta1 - 1]].valor > this.tarjetas[this.arrTarjetas[this.tarjeta2 - 1]].valor) {
                     // desabilito botones
                     let mas = document.getElementById('mas');
                     mas.style.pointerEvents = 'none';
@@ -465,34 +547,40 @@ class HomeComponent {
                     elem0.style.display = 'block';
                     // Muestro respuesta final
                     var card12ubtitulo = document.getElementById('subtitulo2');
-                    card12ubtitulo.innerHTML = this.tarjetas[_globals_globals_component__WEBPACK_IMPORTED_MODULE_1__["arrNumbersX"].length - 1].subtitulo;
+                    card12ubtitulo.innerHTML = this.tarjetas[this.arrTarjetas[this.tarjeta2 - 1]].subtitulo;
                 }
-            }
-            else {
-                // desabilito botones
-                let mas = document.getElementById('mas');
-                mas.style.pointerEvents = 'none';
-                let menos = document.getElementById('menos');
-                menos.style.pointerEvents = 'none';
-                this.carta2();
-                this.respuesta = 'incorrecto';
-                var elem1 = document.getElementById('message');
-                elem1.style.display = 'block';
-                // timer - oculto mensaje
-                var sec1 = 1;
-                let idInterval = setInterval(fname, 1000);
-                function fname() {
-                    sec1--;
-                    if (sec1 == 0) {
-                        // habilito botones
-                        let mas = document.getElementById('mas');
-                        mas.style.pointerEvents = 'auto';
-                        let menos = document.getElementById('menos');
-                        menos.style.pointerEvents = 'auto';
-                        sec1 = 1;
-                        elem1.style.display = 'none';
-                        clearInterval(idInterval);
+                else {
+                    // desabilito botones
+                    let mas = document.getElementById('mas');
+                    mas.style.pointerEvents = 'none';
+                    let menos = document.getElementById('menos');
+                    menos.style.pointerEvents = 'none';
+                    this.respuesta = 'incorrecto';
+                    var elem1 = document.getElementById('message');
+                    elem1.style.display = 'block';
+                    // timer - oculto mensaje
+                    var sec1 = 1;
+                    let idInterval = setInterval(fname, 1000);
+                    function fname() {
+                        sec1--;
+                        if (sec1 == 0) {
+                            // habilito botones
+                            let mas = document.getElementById('mas');
+                            mas.style.pointerEvents = 'auto';
+                            let menos = document.getElementById('menos');
+                            menos.style.pointerEvents = 'auto';
+                            sec1 = 1;
+                            elem1.style.display = 'none';
+                            clearInterval(idInterval);
+                        }
                     }
+                    //mensaje fin
+                    this.fin = 'fin del juego';
+                    var elem0 = document.getElementById('fin');
+                    elem0.style.display = 'block';
+                    // Muestro respuesta final
+                    var card12ubtitulo = document.getElementById('subtitulo2');
+                    card12ubtitulo.innerHTML = this.tarjetas[this.arrTarjetas[this.tarjeta2 - 1]].subtitulo;
                 }
             }
         }
@@ -559,7 +647,7 @@ HomeComponent.ɵcmp = _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵdefineComp
         _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵtextInterpolate"](ctx.score);
         _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵadvance"](18);
         _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵtextInterpolate1"]("", ctx.respuesta, "!");
-    } }, styles: [".caja[_ngcontent-%COMP%]{\r\n    width: 100px;\r\n    height: 100px;\r\n    background-color: green;\r\n    border: 1px solid black;\r\n    margin: 20px;\r\n}\r\n#dos[_ngcontent-%COMP%]{\r\n    background-color: red;\r\n}\r\n.container[_ngcontent-%COMP%]{\r\n    background: rgb(58,0,50);\r\nbackground: linear-gradient(90deg, rgba(58,0,50,1) 0%, rgba(108,4,94,1) 35%, rgba(163,78,146,1) 100%);\r\n    border-radius: 3%;\r\n    border: 1px solid #5e0351;\r\n    margin-top: 40px;\r\n}\r\n.container[_ngcontent-%COMP%]   h1[_ngcontent-%COMP%]{\r\n    font-family: 'Rowdies', cursive;\r\n    font-size: 50px;\r\n    font-weight: 700;\r\n    text-transform: uppercase;\r\n    padding-top: 20px;\r\n    color: white;\r\n}\r\n.container[_ngcontent-%COMP%]   header[_ngcontent-%COMP%]{\r\n    text-align: center;\r\n}\r\n.container[_ngcontent-%COMP%]   section[_ngcontent-%COMP%]{\r\n    padding: 40px;\r\n    display: flex;\r\n    position: relative;\r\n    justify-content: center;\r\n    align-items: center;\r\n}\r\n.container[_ngcontent-%COMP%]   header[_ngcontent-%COMP%]   #score[_ngcontent-%COMP%]{\r\n    font-size: 40px;\r\n    margin-right: 40px;\r\n    color: white;\r\n    text-align: end;\r\n}\r\n.container[_ngcontent-%COMP%]   section[_ngcontent-%COMP%]   #first[_ngcontent-%COMP%]{\r\n    width: 45%;\r\n    margin-right: 5%;\r\n    background-color: black;\r\n    \r\n    background-size: cover;\r\n    display: flex;\r\n    align-items: flex-end;\r\n    justify-content: center;\r\n    height: 500px;\r\n}\r\n.container[_ngcontent-%COMP%]   section[_ngcontent-%COMP%]   #first[_ngcontent-%COMP%]   .text[_ngcontent-%COMP%]{\r\n    width: 100%;\r\n}\r\n.container[_ngcontent-%COMP%]   section[_ngcontent-%COMP%]   #second[_ngcontent-%COMP%]   .text[_ngcontent-%COMP%]{\r\n    width: 100%;\r\n}\r\n.container[_ngcontent-%COMP%]   section[_ngcontent-%COMP%]   #first[_ngcontent-%COMP%]   .text[_ngcontent-%COMP%]   h2[_ngcontent-%COMP%]:nth-child(1){\r\n    margin-bottom: 30%;\r\n    margin-right: 5%;\r\n    margin-left: 5%;\r\n}\r\n.container[_ngcontent-%COMP%]   section[_ngcontent-%COMP%]   #first[_ngcontent-%COMP%]   .text[_ngcontent-%COMP%]   h2[_ngcontent-%COMP%]:nth-child(2){\r\n    color: white;\r\n    background-color: gray;\r\n    bottom: 10px;\r\n    margin: 0px;\r\n}\r\n.container[_ngcontent-%COMP%]   section[_ngcontent-%COMP%]   #second[_ngcontent-%COMP%]   .text[_ngcontent-%COMP%]   h2[_ngcontent-%COMP%]:nth-child(1){\r\n    margin-bottom: 30%;\r\n    margin-right: 5%;\r\n    margin-left: 5%;\r\n}\r\n.container[_ngcontent-%COMP%]   section[_ngcontent-%COMP%]   #second[_ngcontent-%COMP%]   .text[_ngcontent-%COMP%]   h2[_ngcontent-%COMP%]:nth-child(2){\r\n    color: white;\r\n    background-color: gray;\r\n    bottom: 10px;\r\n    margin: 0px;\r\n}\r\n.container[_ngcontent-%COMP%]   section[_ngcontent-%COMP%]   #first[_ngcontent-%COMP%]   .text[_ngcontent-%COMP%], #second[_ngcontent-%COMP%]   .text[_ngcontent-%COMP%]{\r\n    font-family: 'Play', sans-serif;\r\n    text-align: center;\r\n    color: white;\r\n}\r\n.container[_ngcontent-%COMP%]   section[_ngcontent-%COMP%]   #second[_ngcontent-%COMP%]{\r\n    width: 45%;\r\n    margin-left: 5%;\r\n    background-color: black;\r\n    background-image: linear-gradient( rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5) ), \r\n    url('elon-musk.jpg');\r\n    background-size: cover;\r\n    display: flex;\r\n    align-items: flex-end;\r\n    justify-content: center;\r\n\r\n    height: 500px;\r\n}\r\n.container[_ngcontent-%COMP%]   section[_ngcontent-%COMP%]   #second[_ngcontent-%COMP%]   button[_ngcontent-%COMP%]{\r\n    margin: 10px;\r\n}\r\n.container[_ngcontent-%COMP%]   section[_ngcontent-%COMP%]   #second[_ngcontent-%COMP%]   .buttons[_ngcontent-%COMP%]{\r\n    margin-top: 200px;\r\n    margin-bottom: 50px;\r\n    display: flex;\r\n    flex-direction: column;\r\n    position: absolute;\r\n}\r\n.container[_ngcontent-%COMP%]   section[_ngcontent-%COMP%]   #message[_ngcontent-%COMP%], .container[_ngcontent-%COMP%]   section[_ngcontent-%COMP%]   #fin[_ngcontent-%COMP%]{\r\n    position: absolute;\r\n    background: rgb(58,0,50);\r\n    background: linear-gradient(90deg, rgba(58,0,50,1) 0%, rgba(108,4,94,1) 35%, rgba(163,78,146,1) 100%);\r\n    border-radius: 5%;\r\n    color: white;\r\n    text-align: center;\r\n    display: none;\r\n    margin-bottom: 30%;\r\n    padding: 0 10px;\r\n\r\n}\r\n.container[_ngcontent-%COMP%]   section[_ngcontent-%COMP%]   #fin[_ngcontent-%COMP%]{\r\n    margin-bottom: 10%;\r\n    \r\n\r\n}\r\n.container[_ngcontent-%COMP%]   section[_ngcontent-%COMP%]   #message[_ngcontent-%COMP%]   span[_ngcontent-%COMP%], .container[_ngcontent-%COMP%]   section[_ngcontent-%COMP%]   #fin[_ngcontent-%COMP%]   span[_ngcontent-%COMP%]{\r\n    font-size: 40px;\r\n    text-transform: uppercase;\r\n    font-family: 'Rowdies', cursive;\r\n}\r\n\r\n@media (max-width: 1200px){\r\n    .container[_ngcontent-%COMP%]   section[_ngcontent-%COMP%]   #first[_ngcontent-%COMP%]{\r\n        width: 48%;\r\n        margin-right: 2%;\r\n        margin-bottom: 20px;\r\n    }\r\n    .container[_ngcontent-%COMP%]   section[_ngcontent-%COMP%]   #second[_ngcontent-%COMP%]{\r\n        width: 48%;\r\n        margin-left: 2%;\r\n    }\r\n    .container[_ngcontent-%COMP%]   section[_ngcontent-%COMP%]   #second[_ngcontent-%COMP%]   .buttons[_ngcontent-%COMP%]{\r\n        flex-direction: row;\r\n    }\r\n\r\n\r\n}\r\n@media (max-width: 770px){\r\n    .container[_ngcontent-%COMP%]{\r\n        margin-top: 0px;\r\n    }\r\n    .container[_ngcontent-%COMP%]   header[_ngcontent-%COMP%]   h1[_ngcontent-%COMP%]{\r\n        font-size: 30px;\r\n    }\r\n    .container[_ngcontent-%COMP%]   header[_ngcontent-%COMP%]   #score[_ngcontent-%COMP%]{\r\n        font-size: 30px;\r\n    }\r\n    .container[_ngcontent-%COMP%]   section[_ngcontent-%COMP%]{\r\n        padding: 0px;\r\n        flex-direction: column;\r\n    }\r\n    .container[_ngcontent-%COMP%]   section[_ngcontent-%COMP%]   #first[_ngcontent-%COMP%]{\r\n        height: 300px;\r\n        width: 100%;\r\n        margin-right: 0%;\r\n\r\n    }\r\n    .container[_ngcontent-%COMP%]   section[_ngcontent-%COMP%]   #second[_ngcontent-%COMP%]{\r\n        height: 300px;\r\n        width: 100%;\r\n        margin-left: 0%;\r\n    }\r\n\r\n}\n/*# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbInNyYy9hcHAvY29tcG9uZW50cy9ob21lL2hvbWUuY29tcG9uZW50LmNzcyJdLCJuYW1lcyI6W10sIm1hcHBpbmdzIjoiQUFBQTtJQUNJLFlBQVk7SUFDWixhQUFhO0lBQ2IsdUJBQXVCO0lBQ3ZCLHVCQUF1QjtJQUN2QixZQUFZO0FBQ2hCO0FBQ0E7SUFDSSxxQkFBcUI7QUFDekI7QUFFQTtJQUNJLHdCQUF3QjtBQUM1QixxR0FBcUc7SUFDakcsaUJBQWlCO0lBQ2pCLHlCQUF5QjtJQUN6QixnQkFBZ0I7QUFDcEI7QUFDQTtJQUNJLCtCQUErQjtJQUMvQixlQUFlO0lBQ2YsZ0JBQWdCO0lBQ2hCLHlCQUF5QjtJQUN6QixpQkFBaUI7SUFDakIsWUFBWTtBQUNoQjtBQUNBO0lBQ0ksa0JBQWtCO0FBQ3RCO0FBQ0E7SUFDSSxhQUFhO0lBQ2IsYUFBYTtJQUNiLGtCQUFrQjtJQUNsQix1QkFBdUI7SUFDdkIsbUJBQW1CO0FBQ3ZCO0FBQ0E7SUFDSSxlQUFlO0lBQ2Ysa0JBQWtCO0lBQ2xCLFlBQVk7SUFDWixlQUFlO0FBQ25CO0FBQ0E7SUFDSSxVQUFVO0lBQ1YsZ0JBQWdCO0lBQ2hCLHVCQUF1QjtJQUN2QjtxREFDaUQ7SUFDakQsc0JBQXNCO0lBQ3RCLGFBQWE7SUFDYixxQkFBcUI7SUFDckIsdUJBQXVCO0lBQ3ZCLGFBQWE7QUFDakI7QUFDQTtJQUNJLFdBQVc7QUFDZjtBQUNBO0lBQ0ksV0FBVztBQUNmO0FBQ0E7SUFDSSxrQkFBa0I7SUFDbEIsZ0JBQWdCO0lBQ2hCLGVBQWU7QUFDbkI7QUFDQTtJQUNJLFlBQVk7SUFDWixzQkFBc0I7SUFDdEIsWUFBWTtJQUNaLFdBQVc7QUFDZjtBQUNBO0lBQ0ksa0JBQWtCO0lBQ2xCLGdCQUFnQjtJQUNoQixlQUFlO0FBQ25CO0FBQ0E7SUFDSSxZQUFZO0lBQ1osc0JBQXNCO0lBQ3RCLFlBQVk7SUFDWixXQUFXO0FBQ2Y7QUFDQTtJQUNJLCtCQUErQjtJQUMvQixrQkFBa0I7SUFDbEIsWUFBWTtBQUNoQjtBQUVBO0lBQ0ksVUFBVTtJQUNWLGVBQWU7SUFDZix1QkFBdUI7SUFDdkI7d0JBQzJDO0lBQzNDLHNCQUFzQjtJQUN0QixhQUFhO0lBQ2IscUJBQXFCO0lBQ3JCLHVCQUF1Qjs7SUFFdkIsYUFBYTtBQUNqQjtBQUNBO0lBQ0ksWUFBWTtBQUNoQjtBQUNBO0lBQ0ksaUJBQWlCO0lBQ2pCLG1CQUFtQjtJQUNuQixhQUFhO0lBQ2Isc0JBQXNCO0lBQ3RCLGtCQUFrQjtBQUN0QjtBQUNBO0lBQ0ksa0JBQWtCO0lBQ2xCLHdCQUF3QjtJQUN4QixxR0FBcUc7SUFDckcsaUJBQWlCO0lBQ2pCLFlBQVk7SUFDWixrQkFBa0I7SUFDbEIsYUFBYTtJQUNiLGtCQUFrQjtJQUNsQixlQUFlOztBQUVuQjtBQUNBO0lBQ0ksa0JBQWtCO0lBQ2xCLG9CQUFvQjs7QUFFeEI7QUFDQTtJQUNJLGVBQWU7SUFDZix5QkFBeUI7SUFDekIsK0JBQStCO0FBQ25DO0FBQ0EsZUFBZTtBQUdmO0lBQ0k7UUFDSSxVQUFVO1FBQ1YsZ0JBQWdCO1FBQ2hCLG1CQUFtQjtJQUN2QjtJQUNBO1FBQ0ksVUFBVTtRQUNWLGVBQWU7SUFDbkI7SUFDQTtRQUNJLG1CQUFtQjtJQUN2Qjs7O0FBR0o7QUFDQTtJQUNJO1FBQ0ksZUFBZTtJQUNuQjtJQUNBO1FBQ0ksZUFBZTtJQUNuQjtJQUNBO1FBQ0ksZUFBZTtJQUNuQjtJQUNBO1FBQ0ksWUFBWTtRQUNaLHNCQUFzQjtJQUMxQjtJQUNBO1FBQ0ksYUFBYTtRQUNiLFdBQVc7UUFDWCxnQkFBZ0I7O0lBRXBCO0lBQ0E7UUFDSSxhQUFhO1FBQ2IsV0FBVztRQUNYLGVBQWU7SUFDbkI7O0FBRUoiLCJmaWxlIjoic3JjL2FwcC9jb21wb25lbnRzL2hvbWUvaG9tZS5jb21wb25lbnQuY3NzIiwic291cmNlc0NvbnRlbnQiOlsiLmNhamF7XHJcbiAgICB3aWR0aDogMTAwcHg7XHJcbiAgICBoZWlnaHQ6IDEwMHB4O1xyXG4gICAgYmFja2dyb3VuZC1jb2xvcjogZ3JlZW47XHJcbiAgICBib3JkZXI6IDFweCBzb2xpZCBibGFjaztcclxuICAgIG1hcmdpbjogMjBweDtcclxufVxyXG4jZG9ze1xyXG4gICAgYmFja2dyb3VuZC1jb2xvcjogcmVkO1xyXG59XHJcblxyXG4uY29udGFpbmVye1xyXG4gICAgYmFja2dyb3VuZDogcmdiKDU4LDAsNTApO1xyXG5iYWNrZ3JvdW5kOiBsaW5lYXItZ3JhZGllbnQoOTBkZWcsIHJnYmEoNTgsMCw1MCwxKSAwJSwgcmdiYSgxMDgsNCw5NCwxKSAzNSUsIHJnYmEoMTYzLDc4LDE0NiwxKSAxMDAlKTtcclxuICAgIGJvcmRlci1yYWRpdXM6IDMlO1xyXG4gICAgYm9yZGVyOiAxcHggc29saWQgIzVlMDM1MTtcclxuICAgIG1hcmdpbi10b3A6IDQwcHg7XHJcbn1cclxuLmNvbnRhaW5lciBoMXtcclxuICAgIGZvbnQtZmFtaWx5OiAnUm93ZGllcycsIGN1cnNpdmU7XHJcbiAgICBmb250LXNpemU6IDUwcHg7XHJcbiAgICBmb250LXdlaWdodDogNzAwO1xyXG4gICAgdGV4dC10cmFuc2Zvcm06IHVwcGVyY2FzZTtcclxuICAgIHBhZGRpbmctdG9wOiAyMHB4O1xyXG4gICAgY29sb3I6IHdoaXRlO1xyXG59XHJcbi5jb250YWluZXIgaGVhZGVye1xyXG4gICAgdGV4dC1hbGlnbjogY2VudGVyO1xyXG59XHJcbi5jb250YWluZXIgc2VjdGlvbntcclxuICAgIHBhZGRpbmc6IDQwcHg7XHJcbiAgICBkaXNwbGF5OiBmbGV4O1xyXG4gICAgcG9zaXRpb246IHJlbGF0aXZlO1xyXG4gICAganVzdGlmeS1jb250ZW50OiBjZW50ZXI7XHJcbiAgICBhbGlnbi1pdGVtczogY2VudGVyO1xyXG59XHJcbi5jb250YWluZXIgaGVhZGVyICNzY29yZXtcclxuICAgIGZvbnQtc2l6ZTogNDBweDtcclxuICAgIG1hcmdpbi1yaWdodDogNDBweDtcclxuICAgIGNvbG9yOiB3aGl0ZTtcclxuICAgIHRleHQtYWxpZ246IGVuZDtcclxufVxyXG4uY29udGFpbmVyIHNlY3Rpb24gI2ZpcnN0e1xyXG4gICAgd2lkdGg6IDQ1JTtcclxuICAgIG1hcmdpbi1yaWdodDogNSU7XHJcbiAgICBiYWNrZ3JvdW5kLWNvbG9yOiBibGFjaztcclxuICAgIC8qIGJhY2tncm91bmQtaW1hZ2U6IGxpbmVhci1ncmFkaWVudCggcmdiYSgwLCAwLCAwLCAwLjUpLCByZ2JhKDAsIDAsIDAsIDAuNSkgKSwgXHJcbiAgICB1cmwoJy4uLy4uLy4uL2Fzc2V0cy9jYXJ0YXMvaGFycnktcG90dGVyLnBuZycpOyAqL1xyXG4gICAgYmFja2dyb3VuZC1zaXplOiBjb3ZlcjtcclxuICAgIGRpc3BsYXk6IGZsZXg7XHJcbiAgICBhbGlnbi1pdGVtczogZmxleC1lbmQ7XHJcbiAgICBqdXN0aWZ5LWNvbnRlbnQ6IGNlbnRlcjtcclxuICAgIGhlaWdodDogNTAwcHg7XHJcbn1cclxuLmNvbnRhaW5lciBzZWN0aW9uICNmaXJzdCAudGV4dHtcclxuICAgIHdpZHRoOiAxMDAlO1xyXG59XHJcbi5jb250YWluZXIgc2VjdGlvbiAjc2Vjb25kIC50ZXh0e1xyXG4gICAgd2lkdGg6IDEwMCU7XHJcbn1cclxuLmNvbnRhaW5lciBzZWN0aW9uICNmaXJzdCAudGV4dCBoMjpudGgtY2hpbGQoMSl7XHJcbiAgICBtYXJnaW4tYm90dG9tOiAzMCU7XHJcbiAgICBtYXJnaW4tcmlnaHQ6IDUlO1xyXG4gICAgbWFyZ2luLWxlZnQ6IDUlO1xyXG59XHJcbi5jb250YWluZXIgc2VjdGlvbiAjZmlyc3QgLnRleHQgaDI6bnRoLWNoaWxkKDIpe1xyXG4gICAgY29sb3I6IHdoaXRlO1xyXG4gICAgYmFja2dyb3VuZC1jb2xvcjogZ3JheTtcclxuICAgIGJvdHRvbTogMTBweDtcclxuICAgIG1hcmdpbjogMHB4O1xyXG59XHJcbi5jb250YWluZXIgc2VjdGlvbiAjc2Vjb25kIC50ZXh0IGgyOm50aC1jaGlsZCgxKXtcclxuICAgIG1hcmdpbi1ib3R0b206IDMwJTtcclxuICAgIG1hcmdpbi1yaWdodDogNSU7XHJcbiAgICBtYXJnaW4tbGVmdDogNSU7XHJcbn1cclxuLmNvbnRhaW5lciBzZWN0aW9uICNzZWNvbmQgLnRleHQgaDI6bnRoLWNoaWxkKDIpe1xyXG4gICAgY29sb3I6IHdoaXRlO1xyXG4gICAgYmFja2dyb3VuZC1jb2xvcjogZ3JheTtcclxuICAgIGJvdHRvbTogMTBweDtcclxuICAgIG1hcmdpbjogMHB4O1xyXG59XHJcbi5jb250YWluZXIgc2VjdGlvbiAjZmlyc3QgLnRleHQsICNzZWNvbmQgLnRleHR7XHJcbiAgICBmb250LWZhbWlseTogJ1BsYXknLCBzYW5zLXNlcmlmO1xyXG4gICAgdGV4dC1hbGlnbjogY2VudGVyO1xyXG4gICAgY29sb3I6IHdoaXRlO1xyXG59XHJcblxyXG4uY29udGFpbmVyIHNlY3Rpb24gI3NlY29uZHtcclxuICAgIHdpZHRoOiA0NSU7XHJcbiAgICBtYXJnaW4tbGVmdDogNSU7XHJcbiAgICBiYWNrZ3JvdW5kLWNvbG9yOiBibGFjaztcclxuICAgIGJhY2tncm91bmQtaW1hZ2U6IGxpbmVhci1ncmFkaWVudCggcmdiYSgwLCAwLCAwLCAwLjUpLCByZ2JhKDAsIDAsIDAsIDAuNSkgKSwgXHJcbiAgICB1cmwoJy4uLy4uLy4uL2Fzc2V0cy9jYXJ0YXMvZWxvbi1tdXNrLmpwZycpO1xyXG4gICAgYmFja2dyb3VuZC1zaXplOiBjb3ZlcjtcclxuICAgIGRpc3BsYXk6IGZsZXg7XHJcbiAgICBhbGlnbi1pdGVtczogZmxleC1lbmQ7XHJcbiAgICBqdXN0aWZ5LWNvbnRlbnQ6IGNlbnRlcjtcclxuXHJcbiAgICBoZWlnaHQ6IDUwMHB4O1xyXG59XHJcbi5jb250YWluZXIgc2VjdGlvbiAjc2Vjb25kIGJ1dHRvbntcclxuICAgIG1hcmdpbjogMTBweDtcclxufVxyXG4uY29udGFpbmVyIHNlY3Rpb24gI3NlY29uZCAuYnV0dG9uc3tcclxuICAgIG1hcmdpbi10b3A6IDIwMHB4O1xyXG4gICAgbWFyZ2luLWJvdHRvbTogNTBweDtcclxuICAgIGRpc3BsYXk6IGZsZXg7XHJcbiAgICBmbGV4LWRpcmVjdGlvbjogY29sdW1uO1xyXG4gICAgcG9zaXRpb246IGFic29sdXRlO1xyXG59XHJcbi5jb250YWluZXIgc2VjdGlvbiAjbWVzc2FnZSwgLmNvbnRhaW5lciBzZWN0aW9uICNmaW57XHJcbiAgICBwb3NpdGlvbjogYWJzb2x1dGU7XHJcbiAgICBiYWNrZ3JvdW5kOiByZ2IoNTgsMCw1MCk7XHJcbiAgICBiYWNrZ3JvdW5kOiBsaW5lYXItZ3JhZGllbnQoOTBkZWcsIHJnYmEoNTgsMCw1MCwxKSAwJSwgcmdiYSgxMDgsNCw5NCwxKSAzNSUsIHJnYmEoMTYzLDc4LDE0NiwxKSAxMDAlKTtcclxuICAgIGJvcmRlci1yYWRpdXM6IDUlO1xyXG4gICAgY29sb3I6IHdoaXRlO1xyXG4gICAgdGV4dC1hbGlnbjogY2VudGVyO1xyXG4gICAgZGlzcGxheTogbm9uZTtcclxuICAgIG1hcmdpbi1ib3R0b206IDMwJTtcclxuICAgIHBhZGRpbmc6IDAgMTBweDtcclxuXHJcbn1cclxuLmNvbnRhaW5lciBzZWN0aW9uICNmaW57XHJcbiAgICBtYXJnaW4tYm90dG9tOiAxMCU7XHJcbiAgICAvKiBkaXNwbGF5OiBibG9jazsgKi9cclxuXHJcbn1cclxuLmNvbnRhaW5lciBzZWN0aW9uICNtZXNzYWdlIHNwYW4sIC5jb250YWluZXIgc2VjdGlvbiAjZmluIHNwYW57XHJcbiAgICBmb250LXNpemU6IDQwcHg7XHJcbiAgICB0ZXh0LXRyYW5zZm9ybTogdXBwZXJjYXNlO1xyXG4gICAgZm9udC1mYW1pbHk6ICdSb3dkaWVzJywgY3Vyc2l2ZTtcclxufVxyXG4vKiBSRVNQT05TSVZFICovXHJcblxyXG5cclxuQG1lZGlhIChtYXgtd2lkdGg6IDEyMDBweCl7XHJcbiAgICAuY29udGFpbmVyIHNlY3Rpb24gI2ZpcnN0e1xyXG4gICAgICAgIHdpZHRoOiA0OCU7XHJcbiAgICAgICAgbWFyZ2luLXJpZ2h0OiAyJTtcclxuICAgICAgICBtYXJnaW4tYm90dG9tOiAyMHB4O1xyXG4gICAgfVxyXG4gICAgLmNvbnRhaW5lciBzZWN0aW9uICNzZWNvbmR7XHJcbiAgICAgICAgd2lkdGg6IDQ4JTtcclxuICAgICAgICBtYXJnaW4tbGVmdDogMiU7XHJcbiAgICB9XHJcbiAgICAuY29udGFpbmVyIHNlY3Rpb24gI3NlY29uZCAuYnV0dG9uc3tcclxuICAgICAgICBmbGV4LWRpcmVjdGlvbjogcm93O1xyXG4gICAgfVxyXG5cclxuXHJcbn1cclxuQG1lZGlhIChtYXgtd2lkdGg6IDc3MHB4KXtcclxuICAgIC5jb250YWluZXJ7XHJcbiAgICAgICAgbWFyZ2luLXRvcDogMHB4O1xyXG4gICAgfVxyXG4gICAgLmNvbnRhaW5lciBoZWFkZXIgaDF7XHJcbiAgICAgICAgZm9udC1zaXplOiAzMHB4O1xyXG4gICAgfVxyXG4gICAgLmNvbnRhaW5lciBoZWFkZXIgI3Njb3Jle1xyXG4gICAgICAgIGZvbnQtc2l6ZTogMzBweDtcclxuICAgIH1cclxuICAgIC5jb250YWluZXIgc2VjdGlvbntcclxuICAgICAgICBwYWRkaW5nOiAwcHg7XHJcbiAgICAgICAgZmxleC1kaXJlY3Rpb246IGNvbHVtbjtcclxuICAgIH1cclxuICAgIC5jb250YWluZXIgc2VjdGlvbiAjZmlyc3R7XHJcbiAgICAgICAgaGVpZ2h0OiAzMDBweDtcclxuICAgICAgICB3aWR0aDogMTAwJTtcclxuICAgICAgICBtYXJnaW4tcmlnaHQ6IDAlO1xyXG5cclxuICAgIH1cclxuICAgIC5jb250YWluZXIgc2VjdGlvbiAjc2Vjb25ke1xyXG4gICAgICAgIGhlaWdodDogMzAwcHg7XHJcbiAgICAgICAgd2lkdGg6IDEwMCU7XHJcbiAgICAgICAgbWFyZ2luLWxlZnQ6IDAlO1xyXG4gICAgfVxyXG5cclxufSJdfQ== */"] });
+    } }, styles: [".caja[_ngcontent-%COMP%]{\r\n    width: 100px;\r\n    height: 100px;\r\n    background-color: green;\r\n    border: 1px solid black;\r\n    margin: 20px;\r\n}\r\n#dos[_ngcontent-%COMP%]{\r\n    background-color: red;\r\n}\r\n.container[_ngcontent-%COMP%]{\r\n    background: rgb(58,0,50);\r\nbackground: linear-gradient(90deg, rgba(58,0,50,1) 0%, rgba(108,4,94,1) 35%, rgba(163,78,146,1) 100%);\r\n    border-radius: 3%;\r\n    border: 1px solid #5e0351;\r\n    margin-top: 40px;\r\n}\r\n.container[_ngcontent-%COMP%]   h1[_ngcontent-%COMP%]{\r\n    font-family: 'Rowdies', cursive;\r\n    font-size: 50px;\r\n    font-weight: 700;\r\n    text-transform: uppercase;\r\n    padding-top: 20px;\r\n    color: white;\r\n    text-shadow: 2px 2px 2px #4D1E53;\r\n}\r\n.container[_ngcontent-%COMP%]   header[_ngcontent-%COMP%]{\r\n    text-align: center;\r\n}\r\n.container[_ngcontent-%COMP%]   section[_ngcontent-%COMP%]{\r\n    padding: 40px;\r\n    display: flex;\r\n    position: relative;\r\n    justify-content: center;\r\n    align-items: center;\r\n}\r\n.container[_ngcontent-%COMP%]   header[_ngcontent-%COMP%]   #score[_ngcontent-%COMP%]{\r\n    font-size: 40px;\r\n    margin-right: 40px;\r\n    color: white;\r\n    text-align: end;\r\n}\r\n.container[_ngcontent-%COMP%]   section[_ngcontent-%COMP%]   #first[_ngcontent-%COMP%]{\r\n    width: 45%;\r\n    margin-right: 5%;\r\n    background-color: black;\r\n    background-size: cover;\r\n    display: flex;\r\n    align-items: flex-end;\r\n    justify-content: center;\r\n    height: 500px;\r\n}\r\n.container[_ngcontent-%COMP%]   section[_ngcontent-%COMP%]   #first[_ngcontent-%COMP%]   .text[_ngcontent-%COMP%]{\r\n    width: 100%;\r\n}\r\n.container[_ngcontent-%COMP%]   section[_ngcontent-%COMP%]   #second[_ngcontent-%COMP%]   .text[_ngcontent-%COMP%]{\r\n    width: 100%;\r\n}\r\n.container[_ngcontent-%COMP%]   section[_ngcontent-%COMP%]   #first[_ngcontent-%COMP%]   .text[_ngcontent-%COMP%]   h2[_ngcontent-%COMP%]:nth-child(1){\r\n    margin-bottom: 30%;\r\n    margin-right: 5%;\r\n    margin-left: 5%;\r\n}\r\n.container[_ngcontent-%COMP%]   section[_ngcontent-%COMP%]   #first[_ngcontent-%COMP%]   .text[_ngcontent-%COMP%]   h2[_ngcontent-%COMP%]:nth-child(2){\r\n    color: white;\r\n    background-color: gray;\r\n    bottom: 10px;\r\n    margin: 0px;\r\n}\r\n.container[_ngcontent-%COMP%]   section[_ngcontent-%COMP%]   #second[_ngcontent-%COMP%]   .text[_ngcontent-%COMP%]   h2[_ngcontent-%COMP%]:nth-child(1){\r\n    margin-bottom: 30%;\r\n    margin-right: 5%;\r\n    margin-left: 5%;\r\n}\r\n.container[_ngcontent-%COMP%]   section[_ngcontent-%COMP%]   #second[_ngcontent-%COMP%]   .text[_ngcontent-%COMP%]   h2[_ngcontent-%COMP%]:nth-child(2){\r\n    color: white;\r\n    background-color: gray;\r\n    bottom: 10px;\r\n    margin: 0px;\r\n}\r\n.container[_ngcontent-%COMP%]   section[_ngcontent-%COMP%]   #first[_ngcontent-%COMP%]   .text[_ngcontent-%COMP%], #second[_ngcontent-%COMP%]   .text[_ngcontent-%COMP%]{\r\n    font-family: 'Play', sans-serif;\r\n    text-align: center;\r\n    color: white;\r\n}\r\n.container[_ngcontent-%COMP%]   section[_ngcontent-%COMP%]   #second[_ngcontent-%COMP%]{\r\n    width: 45%;\r\n    margin-left: 5%;\r\n    background-color: black;\r\n    background-size: cover;\r\n    display: flex;\r\n    align-items: flex-end;\r\n    justify-content: center;\r\n\r\n    height: 500px;\r\n}\r\n.container[_ngcontent-%COMP%]   section[_ngcontent-%COMP%]   #second[_ngcontent-%COMP%]   button[_ngcontent-%COMP%]{\r\n    margin: 10px;\r\n}\r\n.container[_ngcontent-%COMP%]   section[_ngcontent-%COMP%]   #second[_ngcontent-%COMP%]   .buttons[_ngcontent-%COMP%]{\r\n    margin-top: 200px;\r\n    margin-bottom: 50px;\r\n    display: flex;\r\n    flex-direction: column;\r\n    position: absolute;\r\n}\r\n.container[_ngcontent-%COMP%]   section[_ngcontent-%COMP%]   #message[_ngcontent-%COMP%], .container[_ngcontent-%COMP%]   section[_ngcontent-%COMP%]   #fin[_ngcontent-%COMP%]{\r\n    position: absolute;\r\n    background: rgb(58,0,50);\r\n    background: linear-gradient(90deg, rgba(58,0,50,1) 0%, rgba(108,4,94,1) 35%, rgba(163,78,146,1) 100%);\r\n    border-radius: 5%;\r\n    color: white;\r\n    text-align: center;\r\n    display: none;\r\n    margin-bottom: 30%;\r\n    padding: 0 10px;\r\n\r\n}\r\n.container[_ngcontent-%COMP%]   section[_ngcontent-%COMP%]   #fin[_ngcontent-%COMP%]{\r\n    margin-bottom: 10%;\r\n\r\n}\r\n.container[_ngcontent-%COMP%]   section[_ngcontent-%COMP%]   #message[_ngcontent-%COMP%]   span[_ngcontent-%COMP%], .container[_ngcontent-%COMP%]   section[_ngcontent-%COMP%]   #fin[_ngcontent-%COMP%]   span[_ngcontent-%COMP%]{\r\n    font-size: 40px;\r\n    text-transform: uppercase;\r\n    font-family: 'Rowdies', cursive;\r\n}\r\n\r\n@media (max-width: 1200px){\r\n    .container[_ngcontent-%COMP%]   section[_ngcontent-%COMP%]   #first[_ngcontent-%COMP%]{\r\n        width: 48%;\r\n        margin-right: 2%;\r\n        margin-bottom: 20px;\r\n    }\r\n    .container[_ngcontent-%COMP%]   section[_ngcontent-%COMP%]   #second[_ngcontent-%COMP%]{\r\n        width: 48%;\r\n        margin-left: 2%;\r\n    }\r\n    .container[_ngcontent-%COMP%]   section[_ngcontent-%COMP%]   #second[_ngcontent-%COMP%]   .buttons[_ngcontent-%COMP%]{\r\n        flex-direction: row;\r\n    }\r\n\r\n\r\n}\r\n@media (max-width: 770px){\r\n    .container[_ngcontent-%COMP%]{\r\n        margin-top: 0px;\r\n    }\r\n    .container[_ngcontent-%COMP%]   header[_ngcontent-%COMP%]   h1[_ngcontent-%COMP%]{\r\n        font-size: 30px;\r\n    }\r\n    .container[_ngcontent-%COMP%]   header[_ngcontent-%COMP%]   #score[_ngcontent-%COMP%]{\r\n        font-size: 30px;\r\n    }\r\n    .container[_ngcontent-%COMP%]   section[_ngcontent-%COMP%]{\r\n        padding: 0px;\r\n        flex-direction: column;\r\n    }\r\n    .container[_ngcontent-%COMP%]   section[_ngcontent-%COMP%]   #first[_ngcontent-%COMP%]{\r\n        height: 300px;\r\n        width: 100%;\r\n        margin-right: 0%;\r\n\r\n    }\r\n    .container[_ngcontent-%COMP%]   section[_ngcontent-%COMP%]   #second[_ngcontent-%COMP%]{\r\n        height: 300px;\r\n        width: 100%;\r\n        margin-left: 0%;\r\n    }\r\n\r\n}\n/*# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbInNyYy9hcHAvY29tcG9uZW50cy9ob21lL2hvbWUuY29tcG9uZW50LmNzcyJdLCJuYW1lcyI6W10sIm1hcHBpbmdzIjoiQUFBQTtJQUNJLFlBQVk7SUFDWixhQUFhO0lBQ2IsdUJBQXVCO0lBQ3ZCLHVCQUF1QjtJQUN2QixZQUFZO0FBQ2hCO0FBQ0E7SUFDSSxxQkFBcUI7QUFDekI7QUFFQTtJQUNJLHdCQUF3QjtBQUM1QixxR0FBcUc7SUFDakcsaUJBQWlCO0lBQ2pCLHlCQUF5QjtJQUN6QixnQkFBZ0I7QUFDcEI7QUFDQTtJQUNJLCtCQUErQjtJQUMvQixlQUFlO0lBQ2YsZ0JBQWdCO0lBQ2hCLHlCQUF5QjtJQUN6QixpQkFBaUI7SUFDakIsWUFBWTtJQUNaLGdDQUFnQztBQUNwQztBQUNBO0lBQ0ksa0JBQWtCO0FBQ3RCO0FBQ0E7SUFDSSxhQUFhO0lBQ2IsYUFBYTtJQUNiLGtCQUFrQjtJQUNsQix1QkFBdUI7SUFDdkIsbUJBQW1CO0FBQ3ZCO0FBQ0E7SUFDSSxlQUFlO0lBQ2Ysa0JBQWtCO0lBQ2xCLFlBQVk7SUFDWixlQUFlO0FBQ25CO0FBQ0E7SUFDSSxVQUFVO0lBQ1YsZ0JBQWdCO0lBQ2hCLHVCQUF1QjtJQUN2QixzQkFBc0I7SUFDdEIsYUFBYTtJQUNiLHFCQUFxQjtJQUNyQix1QkFBdUI7SUFDdkIsYUFBYTtBQUNqQjtBQUNBO0lBQ0ksV0FBVztBQUNmO0FBQ0E7SUFDSSxXQUFXO0FBQ2Y7QUFDQTtJQUNJLGtCQUFrQjtJQUNsQixnQkFBZ0I7SUFDaEIsZUFBZTtBQUNuQjtBQUNBO0lBQ0ksWUFBWTtJQUNaLHNCQUFzQjtJQUN0QixZQUFZO0lBQ1osV0FBVztBQUNmO0FBQ0E7SUFDSSxrQkFBa0I7SUFDbEIsZ0JBQWdCO0lBQ2hCLGVBQWU7QUFDbkI7QUFDQTtJQUNJLFlBQVk7SUFDWixzQkFBc0I7SUFDdEIsWUFBWTtJQUNaLFdBQVc7QUFDZjtBQUNBO0lBQ0ksK0JBQStCO0lBQy9CLGtCQUFrQjtJQUNsQixZQUFZO0FBQ2hCO0FBRUE7SUFDSSxVQUFVO0lBQ1YsZUFBZTtJQUNmLHVCQUF1QjtJQUN2QixzQkFBc0I7SUFDdEIsYUFBYTtJQUNiLHFCQUFxQjtJQUNyQix1QkFBdUI7O0lBRXZCLGFBQWE7QUFDakI7QUFDQTtJQUNJLFlBQVk7QUFDaEI7QUFDQTtJQUNJLGlCQUFpQjtJQUNqQixtQkFBbUI7SUFDbkIsYUFBYTtJQUNiLHNCQUFzQjtJQUN0QixrQkFBa0I7QUFDdEI7QUFDQTtJQUNJLGtCQUFrQjtJQUNsQix3QkFBd0I7SUFDeEIscUdBQXFHO0lBQ3JHLGlCQUFpQjtJQUNqQixZQUFZO0lBQ1osa0JBQWtCO0lBQ2xCLGFBQWE7SUFDYixrQkFBa0I7SUFDbEIsZUFBZTs7QUFFbkI7QUFDQTtJQUNJLGtCQUFrQjs7QUFFdEI7QUFDQTtJQUNJLGVBQWU7SUFDZix5QkFBeUI7SUFDekIsK0JBQStCO0FBQ25DO0FBQ0EsZUFBZTtBQUdmO0lBQ0k7UUFDSSxVQUFVO1FBQ1YsZ0JBQWdCO1FBQ2hCLG1CQUFtQjtJQUN2QjtJQUNBO1FBQ0ksVUFBVTtRQUNWLGVBQWU7SUFDbkI7SUFDQTtRQUNJLG1CQUFtQjtJQUN2Qjs7O0FBR0o7QUFDQTtJQUNJO1FBQ0ksZUFBZTtJQUNuQjtJQUNBO1FBQ0ksZUFBZTtJQUNuQjtJQUNBO1FBQ0ksZUFBZTtJQUNuQjtJQUNBO1FBQ0ksWUFBWTtRQUNaLHNCQUFzQjtJQUMxQjtJQUNBO1FBQ0ksYUFBYTtRQUNiLFdBQVc7UUFDWCxnQkFBZ0I7O0lBRXBCO0lBQ0E7UUFDSSxhQUFhO1FBQ2IsV0FBVztRQUNYLGVBQWU7SUFDbkI7O0FBRUoiLCJmaWxlIjoic3JjL2FwcC9jb21wb25lbnRzL2hvbWUvaG9tZS5jb21wb25lbnQuY3NzIiwic291cmNlc0NvbnRlbnQiOlsiLmNhamF7XHJcbiAgICB3aWR0aDogMTAwcHg7XHJcbiAgICBoZWlnaHQ6IDEwMHB4O1xyXG4gICAgYmFja2dyb3VuZC1jb2xvcjogZ3JlZW47XHJcbiAgICBib3JkZXI6IDFweCBzb2xpZCBibGFjaztcclxuICAgIG1hcmdpbjogMjBweDtcclxufVxyXG4jZG9ze1xyXG4gICAgYmFja2dyb3VuZC1jb2xvcjogcmVkO1xyXG59XHJcblxyXG4uY29udGFpbmVye1xyXG4gICAgYmFja2dyb3VuZDogcmdiKDU4LDAsNTApO1xyXG5iYWNrZ3JvdW5kOiBsaW5lYXItZ3JhZGllbnQoOTBkZWcsIHJnYmEoNTgsMCw1MCwxKSAwJSwgcmdiYSgxMDgsNCw5NCwxKSAzNSUsIHJnYmEoMTYzLDc4LDE0NiwxKSAxMDAlKTtcclxuICAgIGJvcmRlci1yYWRpdXM6IDMlO1xyXG4gICAgYm9yZGVyOiAxcHggc29saWQgIzVlMDM1MTtcclxuICAgIG1hcmdpbi10b3A6IDQwcHg7XHJcbn1cclxuLmNvbnRhaW5lciBoMXtcclxuICAgIGZvbnQtZmFtaWx5OiAnUm93ZGllcycsIGN1cnNpdmU7XHJcbiAgICBmb250LXNpemU6IDUwcHg7XHJcbiAgICBmb250LXdlaWdodDogNzAwO1xyXG4gICAgdGV4dC10cmFuc2Zvcm06IHVwcGVyY2FzZTtcclxuICAgIHBhZGRpbmctdG9wOiAyMHB4O1xyXG4gICAgY29sb3I6IHdoaXRlO1xyXG4gICAgdGV4dC1zaGFkb3c6IDJweCAycHggMnB4ICM0RDFFNTM7XHJcbn1cclxuLmNvbnRhaW5lciBoZWFkZXJ7XHJcbiAgICB0ZXh0LWFsaWduOiBjZW50ZXI7XHJcbn1cclxuLmNvbnRhaW5lciBzZWN0aW9ue1xyXG4gICAgcGFkZGluZzogNDBweDtcclxuICAgIGRpc3BsYXk6IGZsZXg7XHJcbiAgICBwb3NpdGlvbjogcmVsYXRpdmU7XHJcbiAgICBqdXN0aWZ5LWNvbnRlbnQ6IGNlbnRlcjtcclxuICAgIGFsaWduLWl0ZW1zOiBjZW50ZXI7XHJcbn1cclxuLmNvbnRhaW5lciBoZWFkZXIgI3Njb3Jle1xyXG4gICAgZm9udC1zaXplOiA0MHB4O1xyXG4gICAgbWFyZ2luLXJpZ2h0OiA0MHB4O1xyXG4gICAgY29sb3I6IHdoaXRlO1xyXG4gICAgdGV4dC1hbGlnbjogZW5kO1xyXG59XHJcbi5jb250YWluZXIgc2VjdGlvbiAjZmlyc3R7XHJcbiAgICB3aWR0aDogNDUlO1xyXG4gICAgbWFyZ2luLXJpZ2h0OiA1JTtcclxuICAgIGJhY2tncm91bmQtY29sb3I6IGJsYWNrO1xyXG4gICAgYmFja2dyb3VuZC1zaXplOiBjb3ZlcjtcclxuICAgIGRpc3BsYXk6IGZsZXg7XHJcbiAgICBhbGlnbi1pdGVtczogZmxleC1lbmQ7XHJcbiAgICBqdXN0aWZ5LWNvbnRlbnQ6IGNlbnRlcjtcclxuICAgIGhlaWdodDogNTAwcHg7XHJcbn1cclxuLmNvbnRhaW5lciBzZWN0aW9uICNmaXJzdCAudGV4dHtcclxuICAgIHdpZHRoOiAxMDAlO1xyXG59XHJcbi5jb250YWluZXIgc2VjdGlvbiAjc2Vjb25kIC50ZXh0e1xyXG4gICAgd2lkdGg6IDEwMCU7XHJcbn1cclxuLmNvbnRhaW5lciBzZWN0aW9uICNmaXJzdCAudGV4dCBoMjpudGgtY2hpbGQoMSl7XHJcbiAgICBtYXJnaW4tYm90dG9tOiAzMCU7XHJcbiAgICBtYXJnaW4tcmlnaHQ6IDUlO1xyXG4gICAgbWFyZ2luLWxlZnQ6IDUlO1xyXG59XHJcbi5jb250YWluZXIgc2VjdGlvbiAjZmlyc3QgLnRleHQgaDI6bnRoLWNoaWxkKDIpe1xyXG4gICAgY29sb3I6IHdoaXRlO1xyXG4gICAgYmFja2dyb3VuZC1jb2xvcjogZ3JheTtcclxuICAgIGJvdHRvbTogMTBweDtcclxuICAgIG1hcmdpbjogMHB4O1xyXG59XHJcbi5jb250YWluZXIgc2VjdGlvbiAjc2Vjb25kIC50ZXh0IGgyOm50aC1jaGlsZCgxKXtcclxuICAgIG1hcmdpbi1ib3R0b206IDMwJTtcclxuICAgIG1hcmdpbi1yaWdodDogNSU7XHJcbiAgICBtYXJnaW4tbGVmdDogNSU7XHJcbn1cclxuLmNvbnRhaW5lciBzZWN0aW9uICNzZWNvbmQgLnRleHQgaDI6bnRoLWNoaWxkKDIpe1xyXG4gICAgY29sb3I6IHdoaXRlO1xyXG4gICAgYmFja2dyb3VuZC1jb2xvcjogZ3JheTtcclxuICAgIGJvdHRvbTogMTBweDtcclxuICAgIG1hcmdpbjogMHB4O1xyXG59XHJcbi5jb250YWluZXIgc2VjdGlvbiAjZmlyc3QgLnRleHQsICNzZWNvbmQgLnRleHR7XHJcbiAgICBmb250LWZhbWlseTogJ1BsYXknLCBzYW5zLXNlcmlmO1xyXG4gICAgdGV4dC1hbGlnbjogY2VudGVyO1xyXG4gICAgY29sb3I6IHdoaXRlO1xyXG59XHJcblxyXG4uY29udGFpbmVyIHNlY3Rpb24gI3NlY29uZHtcclxuICAgIHdpZHRoOiA0NSU7XHJcbiAgICBtYXJnaW4tbGVmdDogNSU7XHJcbiAgICBiYWNrZ3JvdW5kLWNvbG9yOiBibGFjaztcclxuICAgIGJhY2tncm91bmQtc2l6ZTogY292ZXI7XHJcbiAgICBkaXNwbGF5OiBmbGV4O1xyXG4gICAgYWxpZ24taXRlbXM6IGZsZXgtZW5kO1xyXG4gICAganVzdGlmeS1jb250ZW50OiBjZW50ZXI7XHJcblxyXG4gICAgaGVpZ2h0OiA1MDBweDtcclxufVxyXG4uY29udGFpbmVyIHNlY3Rpb24gI3NlY29uZCBidXR0b257XHJcbiAgICBtYXJnaW46IDEwcHg7XHJcbn1cclxuLmNvbnRhaW5lciBzZWN0aW9uICNzZWNvbmQgLmJ1dHRvbnN7XHJcbiAgICBtYXJnaW4tdG9wOiAyMDBweDtcclxuICAgIG1hcmdpbi1ib3R0b206IDUwcHg7XHJcbiAgICBkaXNwbGF5OiBmbGV4O1xyXG4gICAgZmxleC1kaXJlY3Rpb246IGNvbHVtbjtcclxuICAgIHBvc2l0aW9uOiBhYnNvbHV0ZTtcclxufVxyXG4uY29udGFpbmVyIHNlY3Rpb24gI21lc3NhZ2UsIC5jb250YWluZXIgc2VjdGlvbiAjZmlue1xyXG4gICAgcG9zaXRpb246IGFic29sdXRlO1xyXG4gICAgYmFja2dyb3VuZDogcmdiKDU4LDAsNTApO1xyXG4gICAgYmFja2dyb3VuZDogbGluZWFyLWdyYWRpZW50KDkwZGVnLCByZ2JhKDU4LDAsNTAsMSkgMCUsIHJnYmEoMTA4LDQsOTQsMSkgMzUlLCByZ2JhKDE2Myw3OCwxNDYsMSkgMTAwJSk7XHJcbiAgICBib3JkZXItcmFkaXVzOiA1JTtcclxuICAgIGNvbG9yOiB3aGl0ZTtcclxuICAgIHRleHQtYWxpZ246IGNlbnRlcjtcclxuICAgIGRpc3BsYXk6IG5vbmU7XHJcbiAgICBtYXJnaW4tYm90dG9tOiAzMCU7XHJcbiAgICBwYWRkaW5nOiAwIDEwcHg7XHJcblxyXG59XHJcbi5jb250YWluZXIgc2VjdGlvbiAjZmlue1xyXG4gICAgbWFyZ2luLWJvdHRvbTogMTAlO1xyXG5cclxufVxyXG4uY29udGFpbmVyIHNlY3Rpb24gI21lc3NhZ2Ugc3BhbiwgLmNvbnRhaW5lciBzZWN0aW9uICNmaW4gc3BhbntcclxuICAgIGZvbnQtc2l6ZTogNDBweDtcclxuICAgIHRleHQtdHJhbnNmb3JtOiB1cHBlcmNhc2U7XHJcbiAgICBmb250LWZhbWlseTogJ1Jvd2RpZXMnLCBjdXJzaXZlO1xyXG59XHJcbi8qIFJFU1BPTlNJVkUgKi9cclxuXHJcblxyXG5AbWVkaWEgKG1heC13aWR0aDogMTIwMHB4KXtcclxuICAgIC5jb250YWluZXIgc2VjdGlvbiAjZmlyc3R7XHJcbiAgICAgICAgd2lkdGg6IDQ4JTtcclxuICAgICAgICBtYXJnaW4tcmlnaHQ6IDIlO1xyXG4gICAgICAgIG1hcmdpbi1ib3R0b206IDIwcHg7XHJcbiAgICB9XHJcbiAgICAuY29udGFpbmVyIHNlY3Rpb24gI3NlY29uZHtcclxuICAgICAgICB3aWR0aDogNDglO1xyXG4gICAgICAgIG1hcmdpbi1sZWZ0OiAyJTtcclxuICAgIH1cclxuICAgIC5jb250YWluZXIgc2VjdGlvbiAjc2Vjb25kIC5idXR0b25ze1xyXG4gICAgICAgIGZsZXgtZGlyZWN0aW9uOiByb3c7XHJcbiAgICB9XHJcblxyXG5cclxufVxyXG5AbWVkaWEgKG1heC13aWR0aDogNzcwcHgpe1xyXG4gICAgLmNvbnRhaW5lcntcclxuICAgICAgICBtYXJnaW4tdG9wOiAwcHg7XHJcbiAgICB9XHJcbiAgICAuY29udGFpbmVyIGhlYWRlciBoMXtcclxuICAgICAgICBmb250LXNpemU6IDMwcHg7XHJcbiAgICB9XHJcbiAgICAuY29udGFpbmVyIGhlYWRlciAjc2NvcmV7XHJcbiAgICAgICAgZm9udC1zaXplOiAzMHB4O1xyXG4gICAgfVxyXG4gICAgLmNvbnRhaW5lciBzZWN0aW9ue1xyXG4gICAgICAgIHBhZGRpbmc6IDBweDtcclxuICAgICAgICBmbGV4LWRpcmVjdGlvbjogY29sdW1uO1xyXG4gICAgfVxyXG4gICAgLmNvbnRhaW5lciBzZWN0aW9uICNmaXJzdHtcclxuICAgICAgICBoZWlnaHQ6IDMwMHB4O1xyXG4gICAgICAgIHdpZHRoOiAxMDAlO1xyXG4gICAgICAgIG1hcmdpbi1yaWdodDogMCU7XHJcblxyXG4gICAgfVxyXG4gICAgLmNvbnRhaW5lciBzZWN0aW9uICNzZWNvbmR7XHJcbiAgICAgICAgaGVpZ2h0OiAzMDBweDtcclxuICAgICAgICB3aWR0aDogMTAwJTtcclxuICAgICAgICBtYXJnaW4tbGVmdDogMCU7XHJcbiAgICB9XHJcblxyXG59Il19 */"] });
 /*@__PURE__*/ (function () { _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵsetClassMetadata"](HomeComponent, [{
         type: _angular_core__WEBPACK_IMPORTED_MODULE_0__["Component"],
         args: [{
